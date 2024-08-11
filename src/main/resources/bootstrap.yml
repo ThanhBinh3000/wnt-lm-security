@@ -1,0 +1,12 @@
+# Spring
+spring:
+  application:
+    name: wnt-lm-security
+  profiles:
+    active: prod
+  cloud:
+    config:
+        uri: http://10.0.1.141:30004
+        label: latest
+        username: ENCL(Zbyf0nPGWOrE6zdo0/m6hQ==)
+        password: ENCL(Dc9Bw6bT3yZUQ8EeFtBmTQ==)

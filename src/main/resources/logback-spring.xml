@@ -1,0 +1,40 @@
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProperty scope="context" name="applicationName" source="spring.application.name"/>
+    <springProperty scope="context" name="loggingPath" source="logging.file.path" defaultValue="app/log"/>
+    <springProperty scope="context" name="logstashHost" source="logging.logstash.host" defaultValue="localhost"/>
+    <springProperty scope="context" name="logstashPort" source="logging.logstash.port" defaultValue="5000"/>
+
+    <!-- Cấu hình Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Pattern>
+        </layout>
+    </appender>
+
+    <!-- Cấu hình File Appender với Logstash Encoder -->
+    <appender name="STASH" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${loggingPath}/${applicationName}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${loggingPath}/${applicationName}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+
+    <!-- Sử dụng biến môi trường hoặc thuộc tính Spring để cấu hình đích đến Logstash -->
+<!--    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">-->
+<!--        <destination>${logstashHost}:${logstashPort}</destination>-->
+<!--        <encoder class="net.logstash.logback.encoder.LogstashEncoder">-->
+<!--            <customFields>{"applicationName":"${applicationName}"}</customFields>-->
+<!--        </encoder>-->
+<!--        <reconnectionDelay>10000</reconnectionDelay>-->
+<!--    </appender>-->
+
+    <!-- Thêm các Appender vào Root Logger -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="STASH"/>
+<!--        <appender-ref ref="LOGSTASH"/>-->
+    </root>
+</configuration>
