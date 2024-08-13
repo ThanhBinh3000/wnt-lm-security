@@ -1,9 +1,6 @@
 package vn.com.gsoft.security.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
@@ -11,6 +8,7 @@ import jakarta.persistence.Entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @NoArgsConstructor
@@ -51,6 +49,8 @@ public class NhaThuocs extends BaseEntity{
     private Long cityId;
     @Column(name = "WardId")
     private Long wardId;
+    @Column(name = "EntityId")
+    private Long entityId;
     @Transient
     private String role;
 }

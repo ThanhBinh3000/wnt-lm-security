@@ -59,6 +59,12 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
             throw new BadCredentialsException("Không tìm thấy username!");
         }
         Set<CodeGrantedAuthority> privileges = new HashSet<>();
+        //kiểm tra quyền thành viên
+        var entityId = nhaThuocsRepository.findByMaNhaThuoc(user.get().getMaNhaThuoc()).getEntityId();
+        List<Privilege> privilegeObjs = privilegeRepository.findByRoleIdInAndEntityId(Math.toIntExact(entityId));
+        for (Privilege p : privilegeObjs) {
+            privileges.add(new CodeGrantedAuthority(p.getCode()));
+        }
         List<Role> roles = new ArrayList<>();
         return Optional.of(new Profile(
                 user.get().getId(),
