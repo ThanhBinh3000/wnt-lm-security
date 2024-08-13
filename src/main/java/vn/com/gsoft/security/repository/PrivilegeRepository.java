@@ -17,9 +17,7 @@ public interface PrivilegeRepository extends CrudRepository<Privilege, Long> {
     List<Privilege> findByRoleIdInAndMaNhaThuocAndEntityId(List<Long> roleIds, String maNhaThuoc, Long entityId);
 
     @Query(value = "select p from Privilege p " +
-            "join PrivilegeEntity pe on pe.privilegeId = p.id " +
-            "join RolePrivilege rp on rp.privilegeId = p.id " +
-            "join Role r on r.id = rp.roleId " +
-            "where p.enable = true and r.isDeleted = false and r.id in ?1")
-    List<Privilege> findByRoleIdInAndEntityId(List<Long> roleIds);
+            "join PrivilegeEntity pe on pe.privilegeId = p.id "+
+            "where p.enable = true and pe.entityId = ?1")
+    List<Privilege> findByRoleIdInAndEntityId(Integer entityId);
 }

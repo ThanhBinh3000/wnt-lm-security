@@ -2,8 +2,10 @@ package vn.com.gsoft.security.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @jakarta.persistence.Entity
 @Table(name = "Entity")

@@ -2,11 +2,13 @@ package vn.com.gsoft.security.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import vn.com.gsoft.security.model.system.BaseRequest;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class NhaThuocsReq extends BaseRequest {
     private String maNhaThuoc;
