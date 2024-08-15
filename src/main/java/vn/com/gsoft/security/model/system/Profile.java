@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.security.core.userdetails.UserDetails;
 import vn.com.gsoft.security.entity.NhaThuocs;
 import vn.com.gsoft.security.entity.Role;
@@ -31,17 +32,14 @@ public class Profile implements UserDetails, Serializable {
     private Long id;
 
     private String fullName;
-
-
-    private NhaThuocs nhaThuoc;
-
     private List<Role> roles;
-
-    private List<NhaThuocs> nhaThuocs;
+    private String maCoSo;
 
 
     public Profile(Long id, String fullName,
-                   String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Set<CodeGrantedAuthority> authorities
+                   String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired,
+                   boolean accountNonLocked, Set<CodeGrantedAuthority> authorities,
+                   String maCoSo
 
     ) {
         this.id = id;
@@ -53,5 +51,6 @@ public class Profile implements UserDetails, Serializable {
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonLocked = accountNonLocked;
         this.authorities = authorities;
+        this.maCoSo = maCoSo;
     }
 }

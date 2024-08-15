@@ -75,7 +75,8 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
                 true,
                 true,
                 true,
-                privileges
+                privileges,
+                user.get().getMaNhaThuoc()
         ));
     }
 
@@ -100,7 +101,8 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
                 true,
                 true,
                 true,
-                privileges
+                privileges,
+                user.get().getMaNhaThuoc()
         ));
     }
 
