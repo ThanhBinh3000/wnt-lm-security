@@ -60,8 +60,8 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
         }
         Set<CodeGrantedAuthority> privileges = new HashSet<>();
         //kiểm tra quyền thành viên
-        var entityId = nhaThuocsRepository.findByMaNhaThuoc(user.get().getMaNhaThuoc()).getEntityId();
-        List<Privilege> privilegeObjs = privilegeRepository.findByRoleIdInAndEntityId(Math.toIntExact(entityId));
+        var nhaThuoc = nhaThuocsRepository.findByMaNhaThuoc(user.get().getMaNhaThuoc());
+        List<Privilege> privilegeObjs = privilegeRepository.findByRoleIdInAndEntityId(Math.toIntExact(nhaThuoc.getEntityId()));
         for (Privilege p : privilegeObjs) {
             privileges.add(new CodeGrantedAuthority(p.getCode()));
         }
@@ -76,53 +76,11 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
                 true,
                 true,
                 privileges,
-                user.get().getMaNhaThuoc()
+                user.get().getMaNhaThuoc(),
+                nhaThuoc.getCityId(),
+                nhaThuoc.getRegionId(),
+                nhaThuoc.getWardId()
         ));
-    }
-
-    @Override
-    public Optional<Profile> findByUserNameWhenChoose(String username) {
-        Optional<UserProfile> user = userProfileRepository.findByUserName(username);
-        if (!user.isPresent()) {
-            throw new BadCredentialsException("Không tìm thấy username!");
-        }
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        ChooseNhaThuoc chooseNhaThuoc = (ChooseNhaThuoc) requestAttributes.getAttribute("chooseNhaThuoc", RequestAttributes.SCOPE_REQUEST);
-        Set<CodeGrantedAuthority> privileges = new HashSet<>();
-        NhaThuocsReq req = new NhaThuocsReq();
-        req.setUserIdQueryData(user.get().getId());
-
-        return Optional.of(new Profile(
-                user.get().getId(),
-                user.get().getTenDayDu(),
-                user.get().getUserName(),
-                user.get().getPassword(),
-                user.get().getHoatDong(),
-                true,
-                true,
-                true,
-                privileges,
-                user.get().getMaNhaThuoc()
-        ));
-    }
-
-    @Override
-    public Optional<Profile> getUserNameWhenChoose(String username) {
-        return Optional.empty();
-    }
-
-    @Override
-    @CachePut(value = CachingConstant.USER_TOKEN, key = "#token+ '-' +#username")
-    public Optional<Profile> chooseNhaThuoc(String token, String username) {
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes != null) {
-            ChooseNhaThuoc chooseNhaThuoc = (ChooseNhaThuoc) requestAttributes.getAttribute("chooseNhaThuoc", RequestAttributes.SCOPE_REQUEST);
-            if (chooseNhaThuoc != null) {
-                redisListService.addValueToListEnd(username, token);
-                return findByUserNameWhenChoose(username);
-            }
-        }
-        return Optional.ofNullable(null);
     }
 
     @Override

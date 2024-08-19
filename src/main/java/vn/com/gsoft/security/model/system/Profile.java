@@ -34,12 +34,15 @@ public class Profile implements UserDetails, Serializable {
     private String fullName;
     private List<Role> roles;
     private String maCoSo;
+    private Long citiId;
+    private Long regionId;
+    private Long wardId;
 
 
     public Profile(Long id, String fullName,
                    String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired,
                    boolean accountNonLocked, Set<CodeGrantedAuthority> authorities,
-                   String maCoSo
+                   String maCoSo, long citiId, long regionId, long wardId
 
     ) {
         this.id = id;
@@ -52,5 +55,8 @@ public class Profile implements UserDetails, Serializable {
         this.accountNonLocked = accountNonLocked;
         this.authorities = authorities;
         this.maCoSo = maCoSo;
+        this.citiId = citiId;
+        this.regionId = regionId;
+        this.wardId = wardId;
     }
 }
