@@ -79,7 +79,10 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
                 user.get().getMaNhaThuoc(),
                 nhaThuoc.getCityId(),
                 nhaThuoc.getRegionId(),
-                nhaThuoc.getWardId()
+                nhaThuoc.getWardId(),
+                nhaThuoc.getTenNhaThuoc(),
+                nhaThuoc.getDienThoai(),
+                nhaThuoc.getDiaChi()
         ));
     }
 
