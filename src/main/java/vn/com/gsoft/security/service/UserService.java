@@ -11,12 +11,6 @@ public interface UserService extends BaseService {
 
     Optional<Profile> findUserByUsername(String token);
 
-    Optional<Profile> findByUserNameWhenChoose(String username);
-
-    Optional<Profile> getUserNameWhenChoose(String username);
-
-    Optional<Profile> chooseNhaThuoc(String token, String username);
-
     UserProfile findByUsername(String username);
 
     void save(UserProfile username);

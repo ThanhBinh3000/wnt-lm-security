@@ -119,22 +119,6 @@ public class AuthController {
         }
     }
 
-    @PutMapping(value = "/choose-nha-thuoc")
-    public ResponseEntity<BaseResponse> chooseNhaThuoc(
-            @RequestBody @Valid ChooseNhaThuoc chooseNhaThuoc, Authentication authentication, HttpServletRequest request) throws Exception {
-        String requestTokenHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
-            String jwtToken = requestTokenHeader.substring(7);
-            RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-            if (requestAttributes != null) {
-                requestAttributes.setAttribute("chooseNhaThuoc", chooseNhaThuoc, RequestAttributes.SCOPE_REQUEST);
-            }
-            Profile profile = (Profile) authentication.getPrincipal();
-            return ResponseEntity.ok(ResponseUtils.ok(userService.chooseNhaThuoc(jwtToken, profile.getUsername().toLowerCase()).get()));
-        }
-        throw new Exception("Lỗi xác thực!");
-    }
-
     @GetMapping("/profile")
     public ResponseEntity<BaseResponse> getUserDetails(Authentication authentication) {
         Profile profile = (Profile) authentication.getPrincipal();
