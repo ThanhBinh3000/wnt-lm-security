@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import vn.com.gsoft.security.constant.CachingConstant;
+import vn.com.gsoft.security.constant.RoleConstant;
 import vn.com.gsoft.security.entity.*;
 import vn.com.gsoft.security.model.dto.ChooseNhaThuoc;
 import vn.com.gsoft.security.model.dto.NhaThuocsReq;
@@ -42,7 +43,10 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
     @Autowired
     private PrivilegeRepository privilegeRepository;
     @Autowired
+    private EntityRepository entityRepository;
+    @Autowired
     private RedisListService redisListService;
+
 
     @Override
     @Cacheable(value = CachingConstant.USER_TOKEN, key = "#token+ '-' +#username")
@@ -58,14 +62,26 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
         if (!user.isPresent()) {
             throw new BadCredentialsException("Không tìm thấy username!");
         }
+        var entity = entityRepository.findById(user.get().getEntityId());
+        var isAdmin = false;
+        if (entity.isPresent()) {
+            isAdmin = entity.get().getCode().equals(RoleConstant.ROLE_ADMIN);
+        }
         Set<CodeGrantedAuthority> privileges = new HashSet<>();
         //kiểm tra quyền thành viên
-        var nhaThuoc = nhaThuocsRepository.findByMaNhaThuoc(user.get().getMaNhaThuoc());
-        List<Privilege> privilegeObjs = privilegeRepository.findByRoleIdInAndEntityId(Math.toIntExact(nhaThuoc.getEntityId()));
+        var nhaThuoc= new NhaThuocs();
+        if(!isAdmin){
+            nhaThuoc = nhaThuocsRepository.findByMaNhaThuoc(user.get().getMaNhaThuoc());
+        }
+        var entityId = nhaThuoc.getMaNhaThuoc() == null ? entity.get().getId() : nhaThuoc.getEntityId();
+        List<Privilege> privilegeObjs = privilegeRepository.findByRoleIdInAndEntityId(Math.toIntExact(entityId));
         for (Privilege p : privilegeObjs) {
             privileges.add(new CodeGrantedAuthority(p.getCode()));
         }
+        //lấy quyền supper;
+
         List<Role> roles = new ArrayList<>();
+
         return Optional.of(new Profile(
                 user.get().getId(),
                 user.get().getTenDayDu(),
@@ -77,18 +93,24 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
                 true,
                 privileges,
                 user.get().getMaNhaThuoc(),
-                nhaThuoc.getCityId(),
-                nhaThuoc.getRegionId(),
-                nhaThuoc.getWardId(),
+                nhaThuoc.getCityId() != null ? nhaThuoc.getCityId() : 0L,
+                nhaThuoc.getRegionId() != null ? nhaThuoc.getRegionId() : 0L,
+                nhaThuoc.getWardId() != null ? nhaThuoc.getWardId() :0L,
                 nhaThuoc.getTenNhaThuoc(),
                 nhaThuoc.getDienThoai(),
-                nhaThuoc.getDiaChi()
+                nhaThuoc.getDiaChi(),
+                isAdmin
         ));
     }
 
     @Override
     public UserProfile findByUsername(String username) {
-        return userProfileRepository.findByUserName(username).orElse(null);
+        var userProfile = userProfileRepository.findByUserName(username);
+        if (userProfile.isPresent()) {
+            var entity = entityRepository.findById(userProfile.get().getEntityId());
+            userProfile.get().setEntityCode(entity.get().getCode());
+        }
+        return userProfile.orElse(null);
     }
 
     @Override

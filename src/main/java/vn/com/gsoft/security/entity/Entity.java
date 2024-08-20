@@ -15,11 +15,14 @@ public class Entity extends BaseEntity {
     private Long id;
 
     @Column(name = "Code")
-    private Long code;
+    private String code;
 
     @Column(name = "Name")
-    private Long name;
+    private String name;
 
     @Column(name = "Type")
     private Integer type;
+
+    @Column(name = "IsDefault")
+    private Boolean isDefault;
 }
