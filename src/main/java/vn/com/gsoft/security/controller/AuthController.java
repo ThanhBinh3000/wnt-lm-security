@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import vn.com.gsoft.security.constant.RecordStatusContains;
+import vn.com.gsoft.security.constant.RoleConstant;
 import vn.com.gsoft.security.entity.UserProfile;
 import vn.com.gsoft.security.model.dto.*;
 import vn.com.gsoft.security.model.system.BaseResponse;
@@ -33,6 +34,7 @@ import vn.com.gsoft.security.service.UserService;
 import vn.com.gsoft.security.util.system.JwtTokenUtil;
 import vn.com.gsoft.security.util.system.ResponseUtils;
 
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -73,12 +75,15 @@ public class AuthController {
             }
             //check thanh vien co active khong
             var nhaThuoc = userService.findByMaNhaThuoc(username.getMaNhaThuoc());
-            if (nhaThuoc == null) {
-                throw new Exception("Người dùng này không là thành viên liên minh!");
+            if(!Objects.equals(username.getEntityCode(), RoleConstant.ROLE_ADMIN)){
+                if (nhaThuoc == null) {
+                    throw new Exception("Người dùng này không là thành viên liên minh!");
+                }
+                if(nhaThuoc.getRecordStatusId().equals(RecordStatusContains.DELETED)){
+                    throw new Exception("Người dùng này đã bị xóa khỏi liên minh!");
+                }
             }
-            if(nhaThuoc.getRecordStatusId().equals(RecordStatusContains.DELETED)){
-                throw new Exception("Người dùng này đã bị xóa khỏi liên minh!");
-            }
+
             if (username.getPassword() == null) {
                 // check pass cũ
                 String confirmLogin = apiService.confirmLogin(jwtRequest.getUsername(), jwtRequest.getPassword());

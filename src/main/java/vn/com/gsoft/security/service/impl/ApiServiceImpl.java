@@ -32,7 +32,7 @@ public class ApiServiceImpl implements ApiService {
         HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
 
         // Gọi API
-        ResponseEntity<String> response = restTemplate.exchange("http://localhost:22385/api/ConfirmLogin", HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 
         // Trả về kết quả
         return response.getBody();
