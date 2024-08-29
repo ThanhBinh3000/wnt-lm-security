@@ -47,9 +47,6 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @Value("${wnt.kafka.internal.producer.topic.login}")
-    private String producerTopic;
-
     @Autowired
     private RedisListService redisListService;
 
