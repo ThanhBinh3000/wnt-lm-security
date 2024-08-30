@@ -17,8 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 import vn.com.gsoft.security.constant.RecordStatusContains;
 import vn.com.gsoft.security.constant.RoleConstant;
 import vn.com.gsoft.security.entity.UserProfile;
@@ -26,9 +24,7 @@ import vn.com.gsoft.security.model.dto.*;
 import vn.com.gsoft.security.model.system.BaseResponse;
 import vn.com.gsoft.security.model.system.MessageDTO;
 import vn.com.gsoft.security.model.system.Profile;
-import vn.com.gsoft.security.model.system.Resp;
 import vn.com.gsoft.security.service.ApiService;
-import vn.com.gsoft.security.service.KafkaProducer;
 import vn.com.gsoft.security.service.RedisListService;
 import vn.com.gsoft.security.service.UserService;
 import vn.com.gsoft.security.util.system.JwtTokenUtil;
@@ -50,11 +46,6 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
-    @Autowired
-    private KafkaProducer kafkaProducer;
-
-    @Value("${wnt.kafka.internal.producer.topic.login}")
-    private String producerTopic;
 
     @Autowired
     private RedisListService redisListService;
@@ -153,27 +144,6 @@ public class AuthController {
         throw new BadCredentialsException("Token invalid!");
     }
 
-    @PostMapping(value = "/login-qr")
-    public ResponseEntity<BaseResponse> authenticateQr(@RequestBody @Valid LoginQr loginQr) {
-        try {
-            Profile profile = (Profile) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//            // Trả về jwt cho người dùng.
-            String token = jwtTokenUtil.generateToken(profile.getUsername());
-            String refreshToken = jwtTokenUtil.generateRefreshToken(profile.getUsername());
-            // send socket.io trong loginQr
-            Gson gson = new Gson();
-            MessageDTO message = new MessageDTO();
-            message.setId(UUID.randomUUID().toString());
-            message.setUuid(loginQr.getUuid());
-            message.setData(gson.toJson(new JwtResponse(token, refreshToken)));
-            String messageStr = gson.toJson(message);
-            kafkaProducer.sendInternal(producerTopic, messageStr);
-            return ResponseEntity.ok(ResponseUtils.ok("Thành công!"));
-        } catch (Exception ex) {
-            log.error("Authentication error", ex);
-            throw new BadCredentialsException("Token invalid!");
-        }
-    }
     @GetMapping("/passwordEncoder")
     public ResponseEntity<BaseResponse> getPasswordEncoder(String password) {
         return ResponseEntity.ok(ResponseUtils.ok(this.passwordEncoder.encode(password)));
