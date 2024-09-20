@@ -30,6 +30,7 @@ import vn.com.gsoft.security.service.UserService;
 import vn.com.gsoft.security.util.system.JwtTokenUtil;
 import vn.com.gsoft.security.util.system.ResponseUtils;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -109,6 +110,47 @@ public class AuthController {
             redisListService.addValueToListEnd(jwtRequest.getUsername(), token);
 
             return ResponseEntity.ok(ResponseUtils.ok(new JwtResponse(token, refreshToken)));
+        } catch (Exception ex) {
+            log.error("Authentication error", ex);
+            throw new BadCredentialsException("Tên đăng nhập hoặc mật khẩu không chính xác!");
+        }
+    }
+
+    @GetMapping(value = "/wnt-authenticate")
+    public ResponseEntity<BaseResponse> wntAuthenticate(String key) {
+
+        try {
+            String username = redisListService.getHashValue(key, "CurrentUserName");
+            if(username != null) {
+                UserProfile userProfile = userService.findByUsername(username);
+                if (userProfile == null) {
+                    throw new Exception("Tài khoản không tồn tại!");
+                }
+                //check thanh vien co active khong
+                var nhaThuoc = userService.findByMaNhaThuoc(userProfile.getMaNhaThuoc());
+                if(!Objects.equals(userProfile.getEntityCode(), RoleConstant.ROLE_ADMIN)){
+                    if (nhaThuoc == null) {
+                        throw new Exception("Người dùng này không là thành viên liên minh!");
+                    }
+                    if(nhaThuoc.getRecordStatusId().equals(RecordStatusContains.DELETED)){
+                        throw new Exception("Người dùng này đã bị xóa khỏi liên minh!");
+                    }
+                }
+
+                Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                // Trả về jwt cho người dùng.
+                String token = jwtTokenUtil.generateToken(username);
+                String refreshToken = jwtTokenUtil.generateRefreshToken(username);
+
+                redisListService.addValueToListEnd(username, token);
+
+                return ResponseEntity.ok(ResponseUtils.ok(new JwtResponse(token, refreshToken)));
+            }
+          else {
+              throw new Exception("Có lỗi xảy ra!");
+          }
         } catch (Exception ex) {
             log.error("Authentication error", ex);
             throw new BadCredentialsException("Tên đăng nhập hoặc mật khẩu không chính xác!");

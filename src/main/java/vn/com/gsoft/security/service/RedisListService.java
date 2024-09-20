@@ -13,4 +13,6 @@ public interface RedisListService {
 
     // Xóa toàn bộ danh sách dựa trên key
     void deleteEntireList(String key);
+
+    String getHashValue(String hashKey, String key);
 }

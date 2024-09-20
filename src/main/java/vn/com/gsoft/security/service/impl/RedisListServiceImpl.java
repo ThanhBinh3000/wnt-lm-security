@@ -2,11 +2,14 @@ package vn.com.gsoft.security.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import vn.com.gsoft.security.service.RedisListService;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 
@@ -59,5 +62,17 @@ public class RedisListServiceImpl implements RedisListService {
     @Override
     public void deleteEntireList(String key) {
         redisTemplate.delete(key);
+    }
+
+    @Override
+    public String getHashValue(String hashKey, String key) {
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
+        String hexString = hashOps.get("{/_" + hashKey + "}_Data", key);
+        if(hexString != null) {
+            hexString = hexString.replaceAll("[^\\p{Print}]", "");
+            hexString = hexString.replaceAll("\\s", "");
+            return hexString;
+        }
+        return null;
     }
 }
