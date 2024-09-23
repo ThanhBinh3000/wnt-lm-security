@@ -109,6 +109,9 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
         if (userProfile.isPresent()) {
             var entity = entityRepository.findById(userProfile.get().getEntityId());
             userProfile.get().setEntityCode(entity.get().getCode());
+            if(!userProfile.get().getHoatDong()){
+                return null;
+            }
         }
         return userProfile.orElse(null);
     }
