@@ -41,6 +41,8 @@ public class Profile implements UserDetails, Serializable {
     private String soDienThoai;
     private String diaChi;
     private Boolean isAdmin;
+    private Integer soCoSo;
+    private String maNhaCha;
 
 
     public Profile(Long id, String fullName,
@@ -48,7 +50,7 @@ public class Profile implements UserDetails, Serializable {
                    boolean accountNonLocked, Set<CodeGrantedAuthority> authorities,
                    String maCoSo, long citiId, long regionId, long wardId,
                    String tenNhaThuoc, String soDienThoai, String diaChi,
-                   Boolean isAdmin
+                   Boolean isAdmin, Integer soCoSo, String maNhaCha
 
     ) {
         this.id = id;
@@ -68,5 +70,7 @@ public class Profile implements UserDetails, Serializable {
         this.soDienThoai = soDienThoai;
         this.diaChi = diaChi;
         this.isAdmin = isAdmin;
+        this.soCoSo = soCoSo;
+        this.maNhaCha = maNhaCha;
     }
 }

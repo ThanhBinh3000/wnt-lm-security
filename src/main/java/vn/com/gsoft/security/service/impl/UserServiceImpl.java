@@ -70,8 +70,12 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
         Set<CodeGrantedAuthority> privileges = new HashSet<>();
         //kiểm tra quyền thành viên
         var nhaThuoc= new NhaThuocs();
+        var soCoSo = 0;
         if(!isAdmin){
             nhaThuoc = nhaThuocsRepository.findByMaNhaThuoc(user.get().getMaNhaThuoc());
+        }
+        if (user.get().getIsAdminCS()){
+            soCoSo = nhaThuocsRepository.countByMaNhaThuocCha(user.get().getMaNhaThuoc());
         }
         var entityId = nhaThuoc.getMaNhaThuoc() == null ? entity.get().getId() : nhaThuoc.getEntityId();
         List<Privilege> privilegeObjs = privilegeRepository.findByRoleIdInAndEntityId(Math.toIntExact(entityId));
@@ -99,7 +103,9 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
                 nhaThuoc.getTenNhaThuoc(),
                 nhaThuoc.getDienThoai(),
                 nhaThuoc.getDiaChi(),
-                isAdmin
+                isAdmin,
+                soCoSo,
+                nhaThuoc.getMaNhaCha()
         ));
     }
 
@@ -128,5 +134,73 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService, Use
     @Override
     public NhaThuocs findByMaNhaThuoc(String maNhaThuoc){
         return nhaThuocsRepository.findByMaNhaThuoc(maNhaThuoc);
+    }
+
+    @Override
+    @CachePut(value = CachingConstant.USER_TOKEN, key = "#token+ '-' +#username")
+    public Optional<Profile> chooseNhaThuoc(String token, String username) {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes != null) {
+            ChooseNhaThuoc chooseNhaThuoc = (ChooseNhaThuoc) requestAttributes.getAttribute("chooseNhaThuoc", RequestAttributes.SCOPE_REQUEST);
+            if (chooseNhaThuoc != null) {
+                redisListService.addValueToListEnd(username, token);
+                return findByUserNameWhenChoose(username);
+            }
+        }
+        return Optional.ofNullable(null);
+    }
+
+    public Optional<Profile> findByUserNameWhenChoose(String username) {
+        Optional<UserProfile> user = userProfileRepository.findByUserName(username);
+        if (!user.isPresent()) {
+            throw new BadCredentialsException("Không tìm thấy username!");
+        }
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        ChooseNhaThuoc chooseNhaThuoc = (ChooseNhaThuoc) requestAttributes.getAttribute("chooseNhaThuoc", RequestAttributes.SCOPE_REQUEST);
+        var entity = entityRepository.findById(user.get().getEntityId());
+        var isAdmin = false;
+        if (entity.isPresent()) {
+            isAdmin = entity.get().getCode().equals(RoleConstant.ROLE_ADMIN);
+        }
+        Set<CodeGrantedAuthority> privileges = new HashSet<>();
+        //kiểm tra quyền thành viên
+        var nhaThuoc= new NhaThuocs();
+        var soCoSo = 0;
+        if(!isAdmin){
+            nhaThuoc = nhaThuocsRepository.findByMaNhaThuoc(chooseNhaThuoc.getMaCoSo());
+        }
+        if (user.get().getIsAdminCS()){
+            soCoSo = nhaThuocsRepository.countByMaNhaThuocCha(user.get().getMaNhaThuoc());
+        }
+        var entityId = nhaThuoc.getMaNhaThuoc() == null ? entity.get().getId() : nhaThuoc.getEntityId();
+        List<Privilege> privilegeObjs = privilegeRepository.findByRoleIdInAndEntityId(Math.toIntExact(entityId));
+        for (Privilege p : privilegeObjs) {
+            privileges.add(new CodeGrantedAuthority(p.getCode()));
+        }
+        //lấy quyền supper;
+
+        List<Role> roles = new ArrayList<>();
+
+        return Optional.of(new Profile(
+                user.get().getId(),
+                user.get().getTenDayDu(),
+                user.get().getUserName(),
+                user.get().getPassword(),
+                user.get().getHoatDong(),
+                true,
+                true,
+                true,
+                privileges,
+                nhaThuoc.getMaNhaThuoc(),
+                nhaThuoc.getCityId() != null ? nhaThuoc.getCityId() : 0L,
+                nhaThuoc.getRegionId() != null ? nhaThuoc.getRegionId() : 0L,
+                nhaThuoc.getWardId() != null ? nhaThuoc.getWardId() :0L,
+                nhaThuoc.getTenNhaThuoc(),
+                nhaThuoc.getDienThoai(),
+                nhaThuoc.getDiaChi(),
+                isAdmin,
+                soCoSo,
+                nhaThuoc.getMaNhaCha()
+        ));
     }
 }

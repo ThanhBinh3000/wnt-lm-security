@@ -54,7 +54,7 @@ management:
 # Logging
 logging:
   file:
-    path: /app/log
+    path: /wnt/log
   logstash:
     host: localhost
     port: 5000
