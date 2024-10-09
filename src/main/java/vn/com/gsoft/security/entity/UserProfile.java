@@ -53,6 +53,8 @@ public class UserProfile implements Serializable {
     private Boolean isVerificationAccount;
     @Column(name = "EntityId")
     private Long entityId;
+    @Column(name = "IsAdminCS")
+    private Boolean isAdminCS;
     @Transient
     private String entityCode;
 }

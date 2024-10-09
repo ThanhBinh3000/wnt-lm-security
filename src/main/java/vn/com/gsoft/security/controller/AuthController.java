@@ -17,6 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import vn.com.gsoft.security.constant.RecordStatusContains;
 import vn.com.gsoft.security.constant.RoleConstant;
 import vn.com.gsoft.security.entity.UserProfile;
@@ -189,5 +191,20 @@ public class AuthController {
     @GetMapping("/passwordEncoder")
     public ResponseEntity<BaseResponse> getPasswordEncoder(String password) {
         return ResponseEntity.ok(ResponseUtils.ok(this.passwordEncoder.encode(password)));
+    }
+    @PutMapping(value = "/choose-nha-thuoc")
+    public ResponseEntity<BaseResponse> chooseNhaThuoc(
+            @RequestBody @Valid ChooseNhaThuoc chooseNhaThuoc, Authentication authentication, HttpServletRequest request) throws Exception {
+        String requestTokenHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+            String jwtToken = requestTokenHeader.substring(7);
+            RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+            if (requestAttributes != null) {
+                requestAttributes.setAttribute("chooseNhaThuoc", chooseNhaThuoc, RequestAttributes.SCOPE_REQUEST);
+            }
+            Profile profile = (Profile) authentication.getPrincipal();
+            return ResponseEntity.ok(ResponseUtils.ok(userService.chooseNhaThuoc(jwtToken, profile.getUsername()).get()));
+        }
+        throw new Exception("Lỗi xác thực!");
     }
 }

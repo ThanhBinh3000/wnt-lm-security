@@ -26,4 +26,7 @@ public interface NhaThuocsRepository extends CrudRepository<NhaThuocs, Long> {
     )
     Tuple getUserRoleNhaThuoc(@Param("param") NhaThuocsReq req);
     NhaThuocs findByMaNhaThuoc(String maNhaThuoc);
+    @Query(value = "SELECT COUNT(*) FROM NhaThuocs c " +
+            "WHERE 1=1 AND c.maNhaCha = ?1 AND c.recordStatusId = 0")
+    Integer countByMaNhaThuocCha(String maNhaThuoc);
 }

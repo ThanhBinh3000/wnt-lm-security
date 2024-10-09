@@ -51,6 +51,8 @@ public class NhaThuocs extends BaseEntity{
     private Long wardId;
     @Column(name = "EntityId")
     private Long entityId;
+    @Column(name = "MaNhaCha")
+    private String maNhaCha;
     @Transient
     private String role;
 }

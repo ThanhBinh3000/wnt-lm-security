@@ -6,5 +6,5 @@ import java.io.Serializable;
 
 @Data
 public class ChooseNhaThuoc implements Serializable {
-    private Long id;
+    private String maCoSo;
 }

@@ -15,4 +15,5 @@ public interface UserService extends BaseService {
 
     void save(UserProfile username);
     NhaThuocs findByMaNhaThuoc(String maNhaThuoc);
+    Optional<Profile> chooseNhaThuoc(String token, String username);
 }
